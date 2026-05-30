@@ -72,8 +72,113 @@ const getUsers = async (req, res) => {
 
   }
 };
+const getUserById = async (req, res) => {
+  try {
 
+    const user =
+      await User.findOne({
+        _id: req.params.id,
+        organizationId:
+          req.user.organizationId
+      }).select("-password");
+
+    if (!user) {
+      return res.status(404).json({
+        status: 404,
+        code: "USER_NOT_FOUND",
+        message: "User not found"
+      });
+    }
+
+    res.json(user);
+
+  } catch (error) {
+
+    res.status(500).json({
+      status: 500,
+      code: "SERVER_ERROR",
+      message: error.message
+    });
+
+  }
+};
+const updateUser = async (req, res) => {
+
+  try {
+
+    const user =
+      await User.findOneAndUpdate(
+        {
+          _id: req.params.id,
+          organizationId:
+            req.user.organizationId
+        },
+        req.body,
+        {
+          new: true
+        }
+      ).select("-password");
+
+    if (!user) {
+      return res.status(404).json({
+        status: 404,
+        code: "USER_NOT_FOUND",
+        message: "User not found"
+      });
+    }
+
+    res.json(user);
+
+  } catch (error) {
+
+    res.status(500).json({
+      status: 500,
+      code: "SERVER_ERROR",
+      message: error.message
+    });
+
+  }
+
+};
+const deleteUser = async (req, res) => {
+
+  try {
+
+    const user =
+      await User.findOneAndDelete({
+        _id: req.params.id,
+        organizationId:
+          req.user.organizationId
+      });
+
+    if (!user) {
+      return res.status(404).json({
+        status: 404,
+        code: "USER_NOT_FOUND",
+        message: "User not found"
+      });
+    }
+
+    res.json({
+      message:
+        "User deleted successfully"
+    });
+
+  } catch (error) {
+
+    res.status(500).json({
+      status: 500,
+      code: "SERVER_ERROR",
+      message: error.message
+    });
+
+  }
+
+};
 module.exports = {
   createUser,
-  getUsers
+  getUsers,
+  getUserById,
+  updateUser,
+  deleteUser,
 };

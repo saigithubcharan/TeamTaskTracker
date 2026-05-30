@@ -10,7 +10,10 @@ require("../middleware/roleMiddleware");
 
 const {
   createUser,
-  getUsers
+  getUsers,
+  getUserById,
+  updateUser,
+  deleteUser,
 } =
 require("../controllers/userController");
 
@@ -26,6 +29,26 @@ router.get(
   authMiddleware,
   authorize("ADMIN"),
   getUsers
+);
+router.get(
+  "/:id",
+  authMiddleware,
+  authorize("ADMIN"),
+  getUserById
+);
+
+router.put(
+  "/:id",
+  authMiddleware,
+  authorize("ADMIN"),
+  updateUser
+);
+
+router.delete(
+  "/:id",
+  authMiddleware,
+  authorize("ADMIN"),
+  deleteUser
 );
 
 module.exports = router;
