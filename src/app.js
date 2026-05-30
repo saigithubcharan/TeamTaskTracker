@@ -8,6 +8,7 @@ const testRoutes = require("./routes/testRoutes");
 const adminRoutes= require("./routes/adminRoutes");
 const taskRoutes =require("./routes/taskRoutes");
 const userRoutes =require("./routes/userRoutes");
+const errorMiddleware = require("./middleware/errorMiddleware");
 
 const app = express();
 
@@ -16,6 +17,7 @@ app.use(express.json());
 app.use(cors());
 app.use(helmet());
 app.use(morgan("dev"));
+app.use(errorMiddleware);
 
 app.use(
   "/api/tasks",
