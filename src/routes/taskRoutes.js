@@ -87,6 +87,25 @@ router.patch(
  *       401:
  *         description: Unauthorized
  */
+/**
+ * @swagger
+ * /api/tasks/analytics:
+ *   get:
+ *     summary: Get task analytics
+ *     tags: [Tasks]
+ *     responses:
+ *       200:
+ *         description: Task statistics
+ */
+router.get(
+  "/analytics",
+  authMiddleware,
+  authorize(
+    "ADMIN",
+    "MANAGER"
+  ),
+  getTaskAnalytics
+);
 router.get(
   "/:id",
   authMiddleware,
@@ -157,25 +176,6 @@ router.delete(
     "MANAGER"
   ),
   deleteTask
-);
-/**
- * @swagger
- * /api/tasks/analytics:
- *   get:
- *     summary: Get task analytics
- *     tags: [Tasks]
- *     responses:
- *       200:
- *         description: Task statistics
- */
-router.get(
-  "/analytics",
-  authMiddleware,
-  authorize(
-    "ADMIN",
-    "MANAGER"
-  ),
-  getTaskAnalytics
 );
 
 module.exports = router;

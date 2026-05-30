@@ -1,11 +1,31 @@
 const Task = require("../models/Task");
 const redisClient =
 require("../config/redis");
+const {
+  createTaskSchema
+} = require(
+  "../validations/taskValidation"
+);
 
 // CREATE TASK
 const createTask = async (req, res) => {
   try {
+const { error } =
+  createTaskSchema.validate(
+    req.body
+  );
 
+if (error) {
+
+  return res.status(400).json({
+    status: 400,
+    code:
+      "VALIDATION_ERROR",
+    message:
+      error.details[0].message
+  });
+
+}
     const task = await Task.create({
       title: req.body.title,
       description: req.body.description,
@@ -42,8 +62,9 @@ const getTasks = async (
 
   try {
 
-    const cacheKey =
-      `tasks:${req.user.id}`;
+    // const cacheKey =
+    //   `tasks:${req.user.id}`;
+    const cacheKey =`tasks:${req.user.id}:${JSON.stringify(req.query)}`;
 
     const cachedData =
       await redisClient.get(
@@ -166,28 +187,24 @@ const updateTaskStatus = async (req, res) => {
       });
     }
 
-    const isManager =
-      req.user.role === "MANAGER";
+   const isManager =
+  req.user.role === "MANAGER";
 
-    const isAdmin =
-      req.user.role === "ADMIN";
+const isAssignee =
+  task.assignee?.toString() ===
+  req.user.id;
 
-    const isAssignee =
-      task.assignee?.toString() ===
-      req.user.id;
-
-    if (
-      !isManager &&
-      !isAdmin &&
-      !isAssignee
-    ) {
-      return res.status(403).json({
-        status: 403,
-        code: "FORBIDDEN",
-        message:
-          "You cannot update this task"
-      });
-    }
+if (
+  !isManager &&
+  !isAssignee
+) {
+  return res.status(403).json({
+    status: 403,
+    code: "FORBIDDEN",
+    message:
+      "Only assignee or manager can update task status"
+  });
+}
 
     task.status = status;
 

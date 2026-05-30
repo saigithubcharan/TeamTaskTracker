@@ -1,8 +1,29 @@
 const bcrypt = require("bcryptjs");
 const User = require("../models/User");
+const {
+  createUserSchema
+} = require(
+  "../validations/userValidation"
+);
 
 const createUser = async (req, res) => {
   try {
+    const { error } =
+  createUserSchema.validate(
+    req.body
+  );
+
+if (error) {
+
+  return res.status(400).json({
+    status: 400,
+    code:
+      "VALIDATION_ERROR",
+    message:
+      error.details[0].message
+  });
+
+}
 
     const {
       name,
