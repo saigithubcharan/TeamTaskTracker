@@ -318,11 +318,59 @@ await redisClient.del(
   }
 
 };
+const getTaskAnalytics =
+async (req, res) => {
+
+  try {
+
+    const totalTasks =
+      await Task.countDocuments({
+        organizationId:
+          req.user.organizationId
+      });
+
+    const completedTasks =
+      await Task.countDocuments({
+        organizationId:
+          req.user.organizationId,
+        status: "DONE"
+      });
+
+    const overdueTasks =
+      await Task.countDocuments({
+        organizationId:
+          req.user.organizationId,
+        dueDate: {
+          $lt: new Date()
+        },
+        status: {
+          $ne: "DONE"
+        }
+      });
+
+    res.json({
+      totalTasks,
+      completedTasks,
+      overdueTasks
+    });
+
+  } catch (error) {
+
+    res.status(500).json({
+      status: 500,
+      code: "SERVER_ERROR",
+      message: error.message
+    });
+
+  }
+
+};
 module.exports = {
   createTask,
   getTasks,
   updateTaskStatus,
   getTaskById,
   updateTask,
-  deleteTask
+  deleteTask,
+  getTaskAnalytics
 };

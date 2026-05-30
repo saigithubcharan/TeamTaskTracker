@@ -13,7 +13,8 @@ const {
   getTasks,
   updateTaskStatus,
   getTaskById,
-  updateTask,deleteTask
+  updateTask,deleteTask,
+  getTaskAnalytics
 } =
 require("../controllers/taskController");
 /**
@@ -156,6 +157,25 @@ router.delete(
     "MANAGER"
   ),
   deleteTask
+);
+/**
+ * @swagger
+ * /api/tasks/analytics:
+ *   get:
+ *     summary: Get task analytics
+ *     tags: [Tasks]
+ *     responses:
+ *       200:
+ *         description: Task statistics
+ */
+router.get(
+  "/analytics",
+  authMiddleware,
+  authorize(
+    "ADMIN",
+    "MANAGER"
+  ),
+  getTaskAnalytics
 );
 
 module.exports = router;

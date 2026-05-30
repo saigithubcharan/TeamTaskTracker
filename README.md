@@ -219,6 +219,12 @@ Application:
 http://localhost:5000
 
 ---
+## Bonus Features
+
+- Task Analytics Endpoint
+  - Total Tasks
+  - Completed Tasks
+  - Overdue Tasks
 
 ## API Endpoints
 
@@ -255,6 +261,8 @@ PUT /api/tasks/:id
 DELETE /api/tasks/:id
 
 PATCH /api/tasks/:id/status
+
+GET /api/tasks/analytics
 
 ---
 
