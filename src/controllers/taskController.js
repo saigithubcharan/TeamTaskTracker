@@ -73,8 +73,96 @@ const getTasks = async (req, res) => {
   }
 
 };
+const updateTaskStatus = async (req, res) => {
+
+  try {
+
+    const { status } = req.body;
+
+    const task = await Task.findById(
+      req.params.id
+    );
+
+    if (!task) {
+      return res.status(404).json({
+        status: 404,
+        code: "TASK_NOT_FOUND",
+        message: "Task not found"
+      });
+    }
+
+    const allowedTransitions = {
+      TODO: ["IN_PROGRESS", "BLOCKED"],
+      IN_PROGRESS: ["IN_REVIEW", "BLOCKED"],
+      IN_REVIEW: ["DONE", "BLOCKED"],
+      DONE: [],
+      BLOCKED: []
+    };
+
+    const currentStatus =
+      task.status;
+
+    if (
+      !allowedTransitions[
+        currentStatus
+      ].includes(status)
+    ) {
+      return res.status(400).json({
+        status: 400,
+        code:
+          "INVALID_STATUS_TRANSITION",
+        message:
+          `Cannot move from ${currentStatus} to ${status}`
+      });
+    }
+
+    const isManager =
+      req.user.role === "MANAGER";
+
+    const isAdmin =
+      req.user.role === "ADMIN";
+
+    const isAssignee =
+      task.assignee?.toString() ===
+      req.user.id;
+
+    if (
+      !isManager &&
+      !isAdmin &&
+      !isAssignee
+    ) {
+      return res.status(403).json({
+        status: 403,
+        code: "FORBIDDEN",
+        message:
+          "You cannot update this task"
+      });
+    }
+
+    task.status = status;
+
+    await task.save();
+
+    res.json({
+      message:
+        "Task status updated",
+      task
+    });
+
+  } catch (error) {
+
+    res.status(500).json({
+      status: 500,
+      code: "SERVER_ERROR",
+      message: error.message
+    });
+
+  }
+
+};
 
 module.exports = {
   createTask,
-  getTasks
+  getTasks,
+  updateTaskStatus,
 };

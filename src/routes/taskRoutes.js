@@ -10,7 +10,8 @@ require("../middleware/roleMiddleware");
 
 const {
   createTask,
-  getTasks
+  getTasks,
+  updateTaskStatus
 } =
 require("../controllers/taskController");
 
@@ -28,6 +29,11 @@ router.get(
   "/",
   authMiddleware,
   getTasks
+);
+router.patch(
+  "/:id/status",
+  authMiddleware,
+  updateTaskStatus
 );
 
 module.exports = router;
