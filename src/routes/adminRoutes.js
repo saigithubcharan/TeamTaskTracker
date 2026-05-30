@@ -7,7 +7,20 @@ const authMiddleware =
 
 const authorize =
   require("../middleware/roleMiddleware");
-
+/**
+ * @swagger
+ * /api/admin/dashboard:
+ *   get:
+ *     summary: Admin dashboard
+ *     tags: [Admin]
+ *     responses:
+ *       200:
+ *         description: Admin dashboard data
+ *       401:
+ *         description: Unauthorized
+ *       403:
+ *         description: Forbidden
+ */
 router.get(
   "/dashboard",
   authMiddleware,

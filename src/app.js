@@ -9,6 +9,8 @@ const adminRoutes= require("./routes/adminRoutes");
 const taskRoutes =require("./routes/taskRoutes");
 const userRoutes =require("./routes/userRoutes");
 const errorMiddleware = require("./middleware/errorMiddleware");
+const swaggerUi =require("swagger-ui-express");
+const swaggerSpec =require("./config/swagger");
 
 const app = express();
 
@@ -17,7 +19,6 @@ app.use(express.json());
 app.use(cors());
 app.use(helmet());
 app.use(morgan("dev"));
-app.use(errorMiddleware);
 
 app.use(
   "/api/tasks",
@@ -43,5 +44,10 @@ app.get("/", (req, res) => {
     message: "Team Task Tracker API Running"
   });
 });
-
+app.use(
+  "/api-docs",
+  swaggerUi.serve,
+  swaggerUi.setup(swaggerSpec)
+);
+app.use(errorMiddleware);
 module.exports = app;
