@@ -4,7 +4,8 @@ const router = express.Router();
 
 const {
   register,
-  login
+  login,
+  refreshAccessToken
 } = require("../controllers/authController");
 
 router.post(
@@ -15,6 +16,10 @@ router.post(
 router.post(
   "/login",
   login
+);
+router.post(
+  "/refresh",
+  refreshAccessToken
 );
 
 module.exports = router;

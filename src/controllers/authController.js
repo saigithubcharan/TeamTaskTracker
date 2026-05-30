@@ -3,6 +3,7 @@ const bcrypt = require("bcryptjs");
 const User = require("../models/User");
 const Organization = require("../models/Organization");
 const RefreshToken = require("../models/RefreshToken");
+const jwt = require("jsonwebtoken");
 
 const {
   generateAccessToken,
@@ -143,9 +144,91 @@ const login = async (req, res) => {
   }
 
 };
+const refreshAccessToken = async (
+  req,
+  res
+) => {
 
+  try {
+
+    const { refreshToken } =
+      req.body;
+
+    if (!refreshToken) {
+      return res.status(401).json({
+        status: 401,
+        code: "TOKEN_REQUIRED",
+        message:
+          "Refresh token required"
+      });
+    }
+
+    const existingToken =
+      await RefreshToken.findOne({
+        token: refreshToken
+      });
+
+    if (!existingToken) {
+      return res.status(401).json({
+        status: 401,
+        code: "INVALID_TOKEN",
+        message:
+          "Invalid refresh token"
+      });
+    }
+
+    const decoded =
+      jwt.verify(
+        refreshToken,
+        process.env.JWT_REFRESH_SECRET
+      );
+
+    const user =
+      await User.findById(
+        decoded.id
+      );
+
+    await RefreshToken.deleteOne({
+      _id: existingToken._id
+    });
+
+    const newAccessToken =
+      generateAccessToken(user);
+
+    const newRefreshToken =
+      generateRefreshToken(user);
+
+    await RefreshToken.create({
+      userId: user._id,
+      token: newRefreshToken,
+      expiresAt: new Date(
+        Date.now() +
+        7 * 24 * 60 * 60 * 1000
+      )
+    });
+
+    res.json({
+      accessToken:
+        newAccessToken,
+      refreshToken:
+        newRefreshToken
+    });
+
+  } catch (error) {
+
+    res.status(401).json({
+      status: 401,
+      code: "INVALID_TOKEN",
+      message:
+        "Invalid refresh token"
+    });
+
+  }
+
+};
 
 module.exports = {
   register,
-  login
+  login,
+  refreshAccessToken
 };
