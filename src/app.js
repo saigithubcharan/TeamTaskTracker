@@ -7,7 +7,7 @@ const authRoutes = require("./routes/authRoutes");
 const testRoutes = require("./routes/testRoutes");
 const adminRoutes= require("./routes/adminRoutes");
 const taskRoutes =require("./routes/taskRoutes");
-
+const userRoutes =require("./routes/userRoutes");
 
 const app = express();
 
@@ -31,7 +31,10 @@ app.use(
   "/api/admin",
   adminRoutes
 );
-
+app.use(
+  "/api/users",
+  userRoutes
+);
 app.get("/", (req, res) => {
   res.status(200).json({
     success: true,
