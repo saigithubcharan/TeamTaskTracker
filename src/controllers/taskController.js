@@ -1,4 +1,6 @@
 const Task = require("../models/Task");
+const redisClient =
+require("../config/redis");
 
 // CREATE TASK
 const createTask = async (req, res) => {
@@ -17,7 +19,9 @@ const createTask = async (req, res) => {
       createdBy:
         req.user.id
     });
-
+await redisClient.del(
+  `tasks:${req.user.id}`
+);
     res.status(201).json(task);
 
   } catch (error) {
@@ -31,9 +35,41 @@ const createTask = async (req, res) => {
 
 
 // GET TASKS
-const getTasks = async (req, res) => {
+const getTasks = async (
+  req,
+  res
+) => {
 
   try {
+
+    const cacheKey =
+      `tasks:${req.user.id}`;
+
+    const cachedData =
+      await redisClient.get(
+        cacheKey
+      );
+
+    // if (cachedData) {
+
+    //   return res.json(
+    //     JSON.parse(
+    //       cachedData
+    //     )
+    //   );
+
+    // }
+    if (cachedData) {
+
+  console.log("CACHE HIT");
+
+  return res.json(
+    JSON.parse(cachedData)
+  );
+
+}
+
+console.log("CACHE MISS");
 
     const {
       page = 1,
@@ -62,17 +98,28 @@ const getTasks = async (req, res) => {
         .skip((page - 1) * limit)
         .limit(Number(limit));
 
+    await redisClient.set(
+      cacheKey,
+      JSON.stringify(tasks),
+      {
+        EX: 300
+      }
+    );
+
     res.json(tasks);
 
   } catch (error) {
 
     res.status(500).json({
+      status: 500,
+      code: "SERVER_ERROR",
       message: error.message
     });
 
   }
 
 };
+
 const updateTaskStatus = async (req, res) => {
 
   try {
@@ -82,6 +129,9 @@ const updateTaskStatus = async (req, res) => {
     const task = await Task.findById(
       req.params.id
     );
+    await redisClient.del(
+  `tasks:${req.user.id}`
+);
 
     if (!task) {
       return res.status(404).json({
@@ -207,7 +257,9 @@ const updateTask = async (req, res) => {
           new: true
         }
       );
-
+await redisClient.del(
+  `tasks:${req.user.id}`
+);
     if (!task) {
       return res.status(404).json({
         status: 404,
@@ -239,7 +291,9 @@ const deleteTask = async (req, res) => {
         organizationId:
           req.user.organizationId
       });
-
+await redisClient.del(
+  `tasks:${req.user.id}`
+);
     if (!task) {
       return res.status(404).json({
         status: 404,
