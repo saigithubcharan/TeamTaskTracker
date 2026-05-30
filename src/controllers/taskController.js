@@ -160,9 +160,115 @@ const updateTaskStatus = async (req, res) => {
   }
 
 };
+const getTaskById = async (req, res) => {
 
+  try {
+
+    const task = await Task.findOne({
+      _id: req.params.id,
+      organizationId:
+        req.user.organizationId
+    });
+
+    if (!task) {
+      return res.status(404).json({
+        status: 404,
+        code: "TASK_NOT_FOUND",
+        message: "Task not found"
+      });
+    }
+
+    res.json(task);
+
+  } catch (error) {
+
+    res.status(500).json({
+      status: 500,
+      code: "SERVER_ERROR",
+      message: error.message
+    });
+
+  }
+
+};
+const updateTask = async (req, res) => {
+
+  try {
+
+    const task =
+      await Task.findOneAndUpdate(
+        {
+          _id: req.params.id,
+          organizationId:
+            req.user.organizationId
+        },
+        req.body,
+        {
+          new: true
+        }
+      );
+
+    if (!task) {
+      return res.status(404).json({
+        status: 404,
+        code: "TASK_NOT_FOUND",
+        message: "Task not found"
+      });
+    }
+
+    res.json(task);
+
+  } catch (error) {
+
+    res.status(500).json({
+      status: 500,
+      code: "SERVER_ERROR",
+      message: error.message
+    });
+
+  }
+
+};
+const deleteTask = async (req, res) => {
+
+  try {
+
+    const task =
+      await Task.findOneAndDelete({
+        _id: req.params.id,
+        organizationId:
+          req.user.organizationId
+      });
+
+    if (!task) {
+      return res.status(404).json({
+        status: 404,
+        code: "TASK_NOT_FOUND",
+        message: "Task not found"
+      });
+    }
+
+    res.json({
+      message:
+        "Task deleted successfully"
+    });
+
+  } catch (error) {
+
+    res.status(500).json({
+      status: 500,
+      code: "SERVER_ERROR",
+      message: error.message
+    });
+
+  }
+
+};
 module.exports = {
   createTask,
   getTasks,
   updateTaskStatus,
+  getTaskById,
+  updateTask,
+  deleteTask
 };

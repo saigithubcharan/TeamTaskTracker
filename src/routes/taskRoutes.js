@@ -11,7 +11,9 @@ require("../middleware/roleMiddleware");
 const {
   createTask,
   getTasks,
-  updateTaskStatus
+  updateTaskStatus,
+  getTaskById,
+  updateTask,deleteTask
 } =
 require("../controllers/taskController");
 
@@ -34,6 +36,31 @@ router.patch(
   "/:id/status",
   authMiddleware,
   updateTaskStatus
+);
+router.get(
+  "/:id",
+  authMiddleware,
+  getTaskById
+);
+
+router.put(
+  "/:id",
+  authMiddleware,
+  authorize(
+    "ADMIN",
+    "MANAGER"
+  ),
+  updateTask
+);
+
+router.delete(
+  "/:id",
+  authMiddleware,
+  authorize(
+    "ADMIN",
+    "MANAGER"
+  ),
+  deleteTask
 );
 
 module.exports = router;
